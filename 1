@@ -1,0 +1,1277 @@
+
+<!DOCTYPE html>
+<html dir="ltr" lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Sphinx Powered Search For OpenCart</title>
+<base href="https://krmart.in.ua/admin/" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+<script type="text/javascript" src="view/javascript/jquery/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="view/javascript/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="view/javascript/client_translate_expert.js?v=01.21.1000"></script>
+<link type="text/css" rel="stylesheet" href="view/stylesheet/client_translate_expert.css?v=01.21.1000" />
+<link href="view/stylesheet/bootstrap.css" type="text/css" rel="stylesheet" />
+<link href="view/javascript/revolution/font-awesome/css/font-awesome.min.css" type="text/css" rel="stylesheet" />
+<script src="view/javascript/jquery/datetimepicker/moment.js" type="text/javascript"></script>
+<script type="text/javascript" src="view/javascript/jquery/translit.js"></script>
+<script src="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+<link href="view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" media="screen" />
+<link type="text/css" href="view/stylesheet/stylesheet.css" rel="stylesheet" media="screen" />
+
+				<link type="text/css" href="view/stylesheet/revolution.css" rel="stylesheet" media="screen" />
+            
+<script src="view/javascript/common.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="container">
+<header id="header" class="navbar navbar-static-top">
+
+<script>
+	document.js_const_client_translate_expert_is_enabled = 1;
+</script>
+	  
+  <div class="navbar-header">
+        <a type="button" id="button-menu" class="pull-left"><i class="fa fa-indent fa-lg"></i></a>
+        <a href="https://krmart.in.ua/admin/index.php?route=common/dashboard&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" class="navbar-brand"><img src="view/image/logo.png" alt="OPENCART.PRO" title="OPENCART.PRO" /></a></div>
+     <ul class="nav pull-left">
+      <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"  title="Добавить"><i class="fa fa-plus fa-lg"></i> <span class="header-item">Добавить</span></a>
+      <ul class="dropdown-menu dropdown-menu-left alerts-dropdown">
+        <li><a href="https://krmart.in.ua/admin/index.php?route=catalog/product/add&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" style="display: block; overflow: auto;">Товар</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=catalog/category/add&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" style="display: block; overflow: auto;">Категорию</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=catalog/manufacturer/add&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" style="display: block; overflow: auto;">Производителя</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=user/user/add&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" style="display: block; overflow: auto;">Пользователя</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=catalog/download/add&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" style="display: block; overflow: auto;">Загрузку</a></li>
+      </ul>
+    </li> 
+  </ul>
+  <div id="ocpro-search-div" class="col-sm-3 col-md-3 pull-left">
+    <form id="ocpro-search" class="navbar-form" role="search">
+  <div class="input-group">
+    <div class="input-group-btn">
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="fa fa-search"></i>
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-left alerts-dropdown">
+        <li class="dropdown-header">Опции поиска</li>
+        <li><a onclick="setOption('catalog', 'Название, Код товара, SKU'); return false;"><i class="fa fa-book"></i><span>Каталог</span></a></li>
+        <li><a onclick="setOption('customers', 'Фамилия, Имя, E-Mail'); return false;"><i class="fa fa-group"></i><span>Пользователи</span></a></li>
+        <li><a onclick="setOption('orders', 'Номер заказа, Номер счета, Фамилия, Имя, E-mail'); return false;"><i class="fa fa-credit-card"></i><span>Заказы</span></a></li>
+      </ul>
+    </div>
+    <input id="ocpro-search-input" type="text" class="form-control" placeholder="Поиск" name="query" autocomplete="off" />
+    <input id="ocpro-search-option" type="hidden" name="search-option" value="catalog" />
+    <div id="loader-search"><img src="view/image/loader-search.gif" alt="" /></div>
+  </div>
+</form>
+<div id="ocpro-search-result"></div>
+<script type="text/javascript">
+    function setOption(option, text) {
+        jQuery('#ocpro-search-option').val(option);
+        jQuery('#ocpro-search-input').attr('placeholder', text);
+    }
+
+    jQuery('#ocpro-search-input').keyup(function(){
+        var option = jQuery('#ocpro-search-option').val();
+        var length = 3;
+
+        if(option == 'orders') {
+            length = 1;
+        }
+
+        if(this.value.length < length) {
+            return false;
+        }
+
+        if(jQuery.support.leadingWhitespace == false) {
+              return false;
+        }
+
+        jQuery('#loader-search').css('display', 'block');
+
+        jQuery.ajax({
+            type: 'get',
+            url: 'https://krmart.in.ua/admin/index.php?route=search/search/search&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA',
+            data: jQuery('#ocpro-search').serialize(),
+            dataType: 'json',
+            success:function(json){
+                jQuery('#ocpro-search-result').css('display', 'block');
+                jQuery('#loader-search').css('display', 'none');
+
+                if(json['error']) {
+                    jQuery('#ocpro-search-result').html(json['error'])
+                    return;
+                }
+
+                jQuery('#ocpro-search-result').html(json['result'])
+            }
+        });
+    });
+
+    jQuery(document).mouseup(function (e) {
+        var container = jQuery('#ocpro-search-result');
+
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.hide();
+        }
+    });
+
+    jQuery('#ocpro-search').submit(function(e) {
+        e.preventDefault();
+    });
+</script>
+  </div>
+  <ul class="nav pull-right">
+  <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-refresh fa-lg"></i></a>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li><a href="https://krmart.in.ua/admin/index.php?route=extension/module/cachemanager/clearcache&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA"><i class="fa fa-picture-o"></i>&nbsp;&nbsp;Удалить кэш изображений</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=extension/module/cachemanager/clearsystemcache&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA"><i class="fa fa-cogs"></i>&nbsp;&nbsp;Удалить системный кэш</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=extension/module/cachemanager/clearallcache&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA"><i class="fa fa-refresh"></i>&nbsp;&nbsp;Удалить весь кэш</a></li>
+      </ul>
+    </li>
+    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"><span class="label label-danger pull-left">1374</span> <i class="fa fa-bell fa-lg"></i></a>
+      <ul class="dropdown-menu dropdown-menu-right alerts-dropdown">
+        <li class="dropdown-header">Заказы</li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=sale/order&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_order_status=2,1,12,5" style="display: block; overflow: auto;"><span class="label label-warning pull-right">4730</span>Обработка</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=sale/order&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_order_status=3,5"><span class="label label-success pull-right">81</span>Завершено</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=sale/return&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA"><span class="label label-danger pull-right">0</span>Возврат товара</a></li>
+        <li class="divider"></li>
+        <li class="dropdown-header">Покупатели</li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=report/customer_online&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA"><span class="label label-success pull-right">61</span>Покупатели онлайн</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=customer/customer&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_approved=0"><span class="label label-danger pull-right">0</span>Ожидают одобрения</a></li>
+        <li class="divider"></li>
+        <li class="dropdown-header">Товары</li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=catalog/product&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_quantity=0"><span class="label label-danger pull-right">779</span>Нет в наличии</a></li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=catalog/review&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_status=0"><span class="label label-danger pull-right">2</span>Отзывы</a></li>
+        <li class="divider"></li>
+
+				<li class="dropdown-header">Магазин</li>
+				<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revreview&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_status=0"><span class="label label-danger pull-right">2</span>Отзывы о магазине</a></li>
+				<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revpopupphone&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_status=0"><span class="label label-danger pull-right">548</span>Заказы обратн. звонка</a></li>
+				<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revanswers&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_status=0"><span class="label label-danger pull-right">42</span>Вопросы о товарах</a></li>
+				<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revblog_review&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_status=0"><span class="label label-danger pull-right">0</span>Комментарии</a></li>
+				<li class="divider"></li>
+            
+        <li class="dropdown-header">Партнёрская программа</li>
+        <li><a href="https://krmart.in.ua/admin/index.php?route=marketing/affiliate&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA&amp;filter_approved=1"><span class="label label-danger pull-right">1</span>Ожидают одобрения</a></li>
+      </ul>
+    </li>
+    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-home fa-lg"></i></a>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li class="dropdown-header">Магазины</li>
+                <li><a href="https://krmart.in.ua/" target="_blank">KrMart </a></li>
+              </ul>
+    </li>
+    <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-life-ring fa-lg"></i></a>
+      <ul class="dropdown-menu dropdown-menu-right">
+        <li class="dropdown-header">Помощь</li>
+        <li><a href="http://opencart.pro/blog/" target="_blank">Блог</a></li>
+        <li><a href="http://opencart.pro/wiki/" target="_blank">Документация</a></li>
+        <li><a href="http://forum.opencart.pro/" target="_blank">Форум поддержки</a></li>
+      </ul>
+    </li>
+    <li><a href="https://krmart.in.ua/admin/index.php?route=common/logout&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA"><span class="hidden-xs hidden-sm hidden-md">Выход</span> <i class="fa fa-sign-out fa-lg"></i></a></li>
+  </ul>
+  </header>
+<link type="text/css" href="view/stylesheet/sphinx.css" rel="stylesheet" media="screen" />
+<nav id="column-left">
+  <div id="profile">
+    <div>
+            <i class="fa fa-opencart"></i>
+          </div>
+    <div>
+      <h4>Алексей Татаренко</h4>
+      <small>Главный администратор</small></div>
+  </div>
+  <ul id="menu">
+
+				<li id="revtheme"><a class="parent"><i class="fa fa-registered fa-fw"></i> <span>Настройки шаблона</span></a>
+					<ul>
+						<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revtheme&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Основные настройки</a></li>
+						<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revfilter&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Фильтр товаров</a></li>
+						<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revtabs&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Доп. вкладки для товаров</a></li>
+						<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revtextblocks&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Текст. блоки для товаров</a></li>
+						<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revpopupphone&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Заказы обратного звонка</a></li>
+						<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revanswers&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Вопросы о товарах</a></li>
+						<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revsubscribe&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Подписчики с формы</a></li>
+						<li id="revblog"><a class="parent"><span>Модуль новостей</span></a>
+							<ul>
+								<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revblog_setting&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Настройки модуля</a></li>
+								<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revblogcategory&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Список категорий</a></li>
+								<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revblog&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Список новостей</a></li>
+								<li><a href="https://krmart.in.ua/admin/index.php?route=revolution/revblog_review&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Комментарии</a></li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			
+        <li id="menu-dashboard">
+            <a href="https://krmart.in.ua/admin/index.php?route=common/dashboard&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA"><i class="fa fa-dashboard fw"></i> <span>Панель состояния</span></a>
+                </li>
+        <li id="menu-catalog">
+            <a class="parent"><i class="fa fa-tags fw"></i> <span>Каталог</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/category&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Категории</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/product&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Товары</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/recurring&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Профили периодичности</a>
+                            </li>
+                <li>
+                    <a class="parent">OCFilter</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=extension/module/ocfilter/filter&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Фильтры</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=extension/module/ocfilter/page&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Страницы</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=extension/module/ocfilter&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Настройки</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/filter&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Фильтры</a>
+                            </li>
+                <li>
+                    <a class="parent">Характеристики</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=catalog/attribute&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Характеристики</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=catalog/attribute_group&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Группы характеристик</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/option&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Опции</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/manufacturer&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Производители</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/suppler&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Поставщики</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/download&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Файлы для скачивания</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/review&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Отзывы</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=revolution/revreview&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Отзывы о магазине</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=catalog/information&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Статьи</a>
+                            </li>
+              </ul>
+          </li>
+        <li id="menu-blog">
+            <a class="parent"><i class="fa fa-book fw"></i> <span>Блог</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=blog/article&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Статьи блога</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=blog/category&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Категории блога</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=blog/review&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Отзывы блога</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=blog/setting&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Настройки блога</a>
+                            </li>
+              </ul>
+          </li>
+        <li id="menu-extension">
+            <a class="parent"><i class="fa fa-puzzle-piece fw"></i> <span>Расширения</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=extension/installer&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Установка расширений</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=extension/extension&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Расширения</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=extension/modification&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Модификаторы</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=extension/event&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">События</a>
+                            </li>
+              </ul>
+          </li>
+        <li id="menu-design">
+            <a class="parent"><i class="fa fa-television fw"></i> <span>Дизайн</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=design/layout&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Макеты</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=design/custommenu&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Конструктор Меню</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=design/banner&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Баннеры</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=design/sticker&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Промо Стикеры</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=design/benefit&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Преимущества Товара</a>
+                            </li>
+              </ul>
+          </li>
+        <li id="menu-sale">
+            <a class="parent"><i class="fa fa-shopping-cart fw"></i> <span>Продажи</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=sale/order&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Заказы</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=sale/recurring&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Профили периодичности</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=sale/return&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Возврат товара</a>
+                            </li>
+                <li>
+                    <a class="parent">Подарочные сертификаты</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=sale/voucher&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Подарочные сертификаты</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=sale/voucher_theme&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Тематика</a>
+                                        </li>
+                      </ul>
+                  </li>
+              </ul>
+          </li>
+        <li id="menu-customer">
+            <a class="parent"><i class="fa fa-user fw"></i> <span>Покупатели</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=customer/customer&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Покупатели</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=customer/customer_group&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Группы покупателей</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=customer/custom_field&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Настраиваемые поля</a>
+                            </li>
+              </ul>
+          </li>
+        <li id="menu-marketing">
+            <a class="parent"><i class="fa fa-share-alt fw"></i> <span>Маркетинг</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=marketing/marketing&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Маркетинг</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=marketing/affiliate&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Партнёрская программа</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=marketing/coupon&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Купоны</a>
+                            </li>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=marketing/contact&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Почта</a>
+                            </li>
+              </ul>
+          </li>
+        <li id="menu-system">
+            <a class="parent"><i class="fa fa-cog fw"></i> <span>Система</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=setting/store&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Настройки</a>
+                            </li>
+                <li>
+                    <a class="parent">Пользователи</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=user/user&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Пользователи</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=user/user_permission&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Группы пользователей</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=user/api&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">API</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a class="parent">Локализация</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/location&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Местонахождение</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/language&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Языки</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/currency&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Валюта</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/stock_status&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Состояние на складе</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/order_status&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Статус заказов</a>
+                                        </li>
+                        <li>
+                            <a class="parent">Возврат товара</a>
+                                          <ul>
+                                <li><a href="https://krmart.in.ua/admin/index.php?route=localisation/return_status&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Статусы возврата</a></li>
+                                <li><a href="https://krmart.in.ua/admin/index.php?route=localisation/return_action&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Операции возврата</a></li>
+                                <li><a href="https://krmart.in.ua/admin/index.php?route=localisation/return_reason&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Причины возврата</a></li>
+                              </ul>
+                          </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/country&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Области</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/zone&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Города</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/city&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Отделения новой почты</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/geo_zone&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Географические зоны</a>
+                                        </li>
+                        <li>
+                            <a class="parent">Налоги</a>
+                                          <ul>
+                                <li><a href="https://krmart.in.ua/admin/index.php?route=localisation/tax_class&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Налоговые классы</a></li>
+                                <li><a href="https://krmart.in.ua/admin/index.php?route=localisation/tax_rate&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Налоговые ставки</a></li>
+                              </ul>
+                          </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/length_class&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Единицы измерения</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=localisation/weight_class&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Единицы веса</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a class="parent">Инструменты</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=tool/upload&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Загрузить</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=tool/backup&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Бэкап / Восстановление</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=tool/seomanager&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">SEO Менеджер</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=tool/log&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Журнал ошибок</a>
+                                        </li>
+                      </ul>
+                  </li>
+              </ul>
+          </li>
+        <li id="menu-report">
+            <a class="parent"><i class="fa fa-bar-chart-o fw"></i> <span>Отчеты</span></a>
+                  <ul>
+                <li>
+                    <a class="parent">Продажи</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/sale_order&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Заказы</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/sale_tax&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Налоги</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/sale_shipping&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Доставка</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/sale_return&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Возвраты</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/sale_coupon&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Купоны</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a class="parent">Товары</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/product_viewed&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Просмотрено</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/product_purchased&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Куплено</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a class="parent">Покупатели</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/customer_online&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Покупатели онлайн</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/customer_activity&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Активность покупателей</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/customer_search&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Поиск покупателей</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/customer_order&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Заказы</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/customer_reward&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Бонусные баллы</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/customer_credit&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Кредиты</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a class="parent">Маркетинг</a>
+                              <ul>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/marketing&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Маркетинг</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/affiliate&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Партнёрская программа</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=report/affiliate_activity&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Партнерская активность</a>
+                                        </li>
+                      </ul>
+                  </li>
+              </ul>
+          </li>
+        <li id="menu-howto">
+            <a class="parent"><i class="fa fa-comment-o fw"></i> <span>SEO</span></a>
+                  <ul>
+                <li>
+                    <a class="parent">GoGetTop</a>
+                              <ul>
+                        <li>
+                            <a href="http://gogettop.ru/?ref=16605">GoGetTop</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=howto/gogettop&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Инструкция GoGetTop</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a class="parent">SeoPult</a>
+                              <ul>
+                        <li>
+                            <a href="http://seopult.ru/ref/f8924f1b27c4ffd6/aHR0cDovL3Nlb3B1bHQucnUvcmVnaXN0ZXIuaHRtbD9zPXRodG9w">SeoPult</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=howto/seopult&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Инструкция SeoPult</a>
+                                        </li>
+                      </ul>
+                  </li>
+                <li>
+                    <a class="parent">Blogun</a>
+                              <ul>
+                        <li>
+                            <a href="https://blogun.ru/unimpairedcedcdhg.html">Blogun</a>
+                                        </li>
+                        <li>
+                            <a href="https://krmart.in.ua/admin/index.php?route=howto/blogun&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Инструкция Blogun</a>
+                                        </li>
+                      </ul>
+                  </li>
+              </ul>
+          </li>
+        <li id="menu-pro">
+            <a class="parent"><i class="fa fa-tasks fw"></i> <span>.Pro</span></a>
+                  <ul>
+                <li>
+                    <a href="https://krmart.in.ua/admin/index.php?route=pro/license&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Лицензия</a>
+                            </li>
+              </ul>
+          </li>
+      </ul>
+  <div id="stats">
+    <ul>
+      <li>
+        <div>Завершенных заказов <span class="pull-right">1%</span></div>
+        <div class="progress">
+          <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%"> <span class="sr-only">1%</span></div>
+        </div>
+      </li>
+      <li>
+        <div>Заказов в процессе <span class="pull-right">59%</span></div>
+        <div class="progress">
+          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="59" aria-valuemin="0" aria-valuemax="100" style="width: 59%"> <span class="sr-only">59%</span></div>
+        </div>
+      </li>
+      <li>
+        <div>Другие заказы <span class="pull-right">41%</span></div>
+        <div class="progress">
+          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="41" aria-valuemin="0" aria-valuemax="100" style="width: 41%"> <span class="sr-only">41%</span></div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-product" data-toggle="tooltip" title="Сохранить" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="https://krmart.in.ua/admin/index.php?route=extension/module&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" data-toggle="tooltip" title="Отмена" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>Sphinx Powered Search For OpenCart</h1>
+      <ul class="breadcrumb">
+                <li><a href="https://krmart.in.ua/admin/index.php?route=common/dashboard&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Главная</a></li>
+                <li><a href="https://krmart.in.ua/admin/index.php?route=extension/module&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Modules</a></li>
+                <li><a href="https://krmart.in.ua/admin/index.php?route=extension/module/sphinxsearch&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA">Sphinx Powered Search For OpenCart</a></li>
+              </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+        <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> Sphinx Powered Search For OpenCart</h3>
+      </div>
+      <div class="panel-body">
+        <form action="https://krmart.in.ua/admin/index.php?route=extension/module/sphinxsearch&amp;token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" method="post" enctype="multipart/form-data" id="form-product" class="form-horizontal">
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="#general" role="tab" data-toggle="tab">General</a></li>
+				<li><a href="#autocomplete" role="tab" data-toggle="tab">Autocomplete</a></li>
+				<li><a href="#productOptions" role="tab" data-toggle="tab">Products</a></li>
+				<li><a href="#categoriesOptions" role="tab" data-toggle="tab">Categories</a></li>
+				<li><a href="#suggestions" role="tab" data-toggle="tab">Suggestions</a></li>
+				<li><a href="#config" role="tab" data-toggle="tab">Config file</a></li>
+				<li><a href="#rtIndex" class="rtIndexTab hiddenTab" role="tab" data-toggle="tab">RT index</a></li>
+			</ul>
+
+          <div class="tab-content">
+            <div class="tab-pane active" id="general">
+              
+              <div class="tab-content">
+                
+                <div class="form-group">
+				  	<label class="col-sm-2 control-label">Sphinx Search Status:</label>
+				    <div class="col-sm-10">
+				    	<select class="form-control" name="sphinx_search_module">
+				          				          <option value="1"  >Включено</option>
+				          <option value="0" selected="selected" >Отключено</option>
+				          				        </select>
+					</div>
+				</div>
+				
+				<div class="form-group">
+		          	<label class="col-sm-2 control-label">Sphinx server:</label>
+		            <div class="col-sm-10">
+		            	<input class="form-control" type="text" name="sphinx_search_server" value="192.168.1.1:9312" />
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Sphinx port:</label>
+		            <div class="col-sm-10">
+		            	<input class="form-control" type="text" name="sphinx_search_port" value="9312" />
+		        	</div>
+		        </div>
+		        
+	        	<legend><h3>Matching mode</h3></legend>
+				
+				<div class="form-group">
+		          	<label class="col-sm-2 control-label">Choose sphinx match mode:</label>
+		            <div class="col-sm-9">
+			            <select class="form-control" name="sphinx_match_mode">
+		                  			                  			                  	<option value="0" selected="selected">SPH_MATCH_ALL</option>
+			                  		                  			                  			                  	<option value="1">SPH_MATCH_ANY</option>
+			                  		                  			                  			                  	<option value="2">SPH_MATCH_PHRASE</option>
+			                  		                  			                  			                  	<option value="3">SPH_MATCH_BOOLEAN</option>
+			                  		                  			                  			                  	<option value="4">SPH_MATCH_EXTENDED</option>
+			                  		                  			                  			                  	<option value="5">SPH_MATCH_FULLSCAN</option>
+			                  		                  			                  			                  	<option value="6">SPH_MATCH_EXTENDED2</option>
+			                  		                  		                </select>
+	                </div>
+	                <div class="col-sm-1">
+	                	<button class="btn btn-primary" id="search-mode">?</button>
+	                </div>
+		        </div>
+		        
+		        <p class="alert alert-info search-mode-info">&bull; SPH_MATCH_ALL, matches all query words (default mode)<br />
+		&bull; SPH_MATCH_ANY, matches any of the query words<br />
+		&bull; SPH_MATCH_PHRASE, matches query as a phrase, requiring perfect match<br />
+		&bull; SPH_MATCH_BOOLEAN, matches query as a boolean expression<br />
+		&bull; SPH_MATCH_EXTENDED, matches query as an expression in Sphinx internal query language<br />
+		&bull; SPH_MATCH_FULLSCAN, matches query, forcibly using the "full scan" mode<br />
+		&bull; SPH_MATCH_EXTENDED2, matches query using the second version of the Extended matching mode<br />
+		For more information, please visit: <a href="http://sphinxsearch.com/docs/archives/1.10/matching-modes.html" target="_blank">Sphinx documentation</a>
+		</p>
+		        
+	        	<legend><h3>Sort mode</h3></legend>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Sort status:</label>
+		            <div class="col-sm-9">
+		            	<select class="form-control" name="sphinx_search_sort">
+		                  		                  <option value="1"  >Включено</option>
+		                  <option value="0" selected="selected" >Отключено</option>
+		                  		                </select>
+		        	</div>
+		        	<div class="col-sm-1">
+	                	<button class="btn btn-primary" id="sort-mode">?</button>
+	                </div>
+		        </div>
+		        
+		        					<div class="form-group">
+													<label class="col-sm-2 control-label radio-inline"><input type="radio" name="sphinx_sort_mode" value="0"> SPH_SORT_RELEVANCE</label>
+																			<div class="col-sm-10">
+																	<input class="form-control control-label" type="hidden" name="sphinx_sort_attr_val[0]" value="" />
+															</div>
+											</div>
+									<div class="form-group">
+													<label class="col-sm-2 control-label radio-inline"><input type="radio" name="sphinx_sort_mode" value="1"> SPH_SORT_ATTR_DESC</label>
+																			<div class="col-sm-10">
+								<select class="form-control" name="sphinx_sort_attr_val[1]"> 
+																			<option value="name" selected="selected">name</option>
+																			<option value="description" >description</option>
+																			<option value="model" >model</option>
+																			<option value="sku" >sku</option>
+																			<option value="ean" >ean</option>
+																			<option value="jan" >jan</option>
+																			<option value="isbn" >isbn</option>
+																			<option value="mpn" >mpn</option>
+																			<option value="price" >price</option>
+									 
+								</select>
+							</div>
+											</div>
+									<div class="form-group">
+													<label class="col-sm-2 control-label radio-inline"><input type="radio" name="sphinx_sort_mode" value="2"> SPH_SORT_ATTR_ASC</label>
+																			<div class="col-sm-10">
+								<select class="form-control" name="sphinx_sort_attr_val[2]"> 
+																			<option value="name" selected="selected">name</option>
+																			<option value="description" >description</option>
+																			<option value="model" >model</option>
+																			<option value="sku" >sku</option>
+																			<option value="ean" >ean</option>
+																			<option value="jan" >jan</option>
+																			<option value="isbn" >isbn</option>
+																			<option value="mpn" >mpn</option>
+																			<option value="price" >price</option>
+									 
+								</select>
+							</div>
+											</div>
+									<div class="form-group">
+													<label class="col-sm-2 control-label radio-inline"><input type="radio" name="sphinx_sort_mode" value="3"> SPH_SORT_TIME_SEGMENTS</label>
+																			<div class="col-sm-10">
+																	<input class="form-control control-label" type="text" name="sphinx_sort_attr_val[3]" value="" />
+															</div>
+											</div>
+									<div class="form-group">
+													<label class="col-sm-2 control-label radio-inline"><input type="radio" name="sphinx_sort_mode" value="4" checked="checked"> SPH_SORT_EXTENDED</label>
+																			<div class="col-sm-10">
+																	<input class="form-control control-label" type="text" name="sphinx_sort_attr_val[4]" value="" />
+															</div>
+											</div>
+									<div class="form-group">
+													<label class="col-sm-2 control-label radio-inline"><input type="radio" name="sphinx_sort_mode" value="5"> SPH_SORT_EXPR</label>
+																			<div class="col-sm-10">
+																	<input class="form-control control-label" type="text" name="sphinx_sort_attr_val[5]" value="" />
+															</div>
+											</div>
+								
+		        <p class="alert alert-info sort-mode-info">&bull; SPH_SORT_RELEVANCE mode, that sorts by relevance in descending order (best matches first)<br />
+		&bull; SPH_SORT_ATTR_DESC mode, that sorts by an attribute in descending order (bigger attribute values first)<br />
+		&bull; SPH_SORT_ATTR_ASC mode, that sorts by an attribute in ascending order (smaller attribute values first)<br />
+		&bull; SPH_SORT_TIME_SEGMENTS mode, that sorts by time segments (last hour/day/week/month) in descending order, and then by relevance in descending order<br />
+		&bull; SPH_SORT_EXTENDED mode, that sorts by SQL-like combination of columns in ASC/DESC order<br />
+		&bull; SPH_SORT_EXPR mode, that sorts by an arithmetic expression<br />
+		For more information, please visit: <a href="http://sphinxsearch.com/docs/archives/1.10/sorting-modes.html" target="_blank">Sphinx documentation</a>
+		</p>
+		        
+	        	<legend><h3>Ranking mode</h3></legend>
+		        
+				<div class="form-group">
+		          	<label class="col-sm-2 control-label">Choose sphinx ranking mode:</label>
+		            <div class="col-sm-9">
+		            	<select class="form-control" name="sphinx_ranking_mode">
+		                  			                  			                  	<option value="0" selected="selected">SPH_RANK_PROXIMITY_BM25</option>
+			                  		                  			                  			                  	<option value="1">SPH_RANK_BM25</option>
+			                  		                  			                  			                  	<option value="2">SPH_RANK_NONE</option>
+			                  		                  			                  			                  	<option value="3">SPH_RANK_WORDCOUNT</option>
+			                  		                  			                  			                  	<option value="4">SPH_RANK_PROXIMITY</option>
+			                  		                  			                  			                  	<option value="5">SPH_RANK_MATCHANY</option>
+			                  		                  			                  			                  	<option value="6">SPH_RANK_FIELDMASK</option>
+			                  		                  			                  			                  	<option value="7">SPH_RANK_SPH04</option>
+			                  		                  			                  			                  	<option value="8">SPH_RANK_EXPR</option>
+			                  		                  			                  			                  	<option value="9">SPH_RANK_TOTAL</option>
+			                  		                  		                </select>
+		        	</div>
+		        	<div class="col-sm-1">
+	                	<button class="btn btn-primary" id="ranking-mode">?</button>
+	                </div>
+		        </div>
+
+				<p class="alert alert-info ranking-mode-info">&bull; SPH_RANK_PROXIMITY_BM25, the default ranking mode that uses and combines both phrase proximity and BM25 ranking.<br />
+		&bull; SPH_RANK_BM25, statistical ranking mode which uses BM25 ranking only (similar to most other full-text engines). This mode is faster but may result in worse quality on queries which contain more than 1 keyword.<br />
+		&bull; SPH_RANK_NONE, no ranking mode. This mode is obviously the fastest. A weight of 1 is assigned to all matches. This is sometimes called boolean searching that just matches the documents but does not rank them.<br />
+		&bull; SPH_RANK_WORDCOUNT, ranking by the keyword occurrences count. This ranker computes the per-field keyword occurrence counts, then multiplies them by field weights, and sums the resulting values.<br />
+		&bull; SPH_RANK_PROXIMITY, returns raw phrase proximity value as a result. This mode is internally used to emulate SPH_MATCH_ALL queries.<br />
+		&bull; SPH_RANK_MATCHANY, returns rank as it was computed in SPH_MATCH_ANY mode earlier, and is internally used to emulate SPH_MATCH_ANY queries.<br />
+		&bull; SPH_RANK_FIELDMASK, returns a 32-bit mask with N-th bit corresponding to N-th fulltext field, numbering from 0. The bit will only be set when the respective field has any keyword occurrences satisfying the query.<br />
+		&bull; SPH_RANK_SPH04, is generally based on the default SPH_RANK_PROXIMITY_BM25 ranker, but additionally boosts the matches when they occur in the very beginning or the very end of a text field. Thus, if a field equals the exact query, SPH04 should rank it higher than a field that contains the exact query but is not equal to it. (For instance, when the query is "Hyde Park", a document entitled "Hyde Park" should be ranked higher than a one entitled "Hyde Park, London" or "The Hyde Park Cafe".)<br />
+		&bull; SPH_RANK_EXPR, lets you specify the ranking formula in run time. It exposes a number of internal text factors and lets you define how the final weight should be computed from those factors. You can find more details about its syntax and a reference available factors in a subsection below.<br />
+		For more information, please visit: <a href="http://sphinxsearch.com/docs/current.html#ranking-overview" target="_blank">Sphinx documentation</a>
+		</p>
+
+	        	<legend><h3>Sphinx weights</h3></legend>
+
+ 									<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">name</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[name]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">description</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[description]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">model</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[model]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">sku</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[sku]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">ean</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[ean]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">jan</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[jan]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">isbn</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[isbn]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">mpn</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[mpn]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            						<div class="form-group col-sm-4">
+						<label class="col-sm-2 control-label">price</label>
+						<div class="col-sm-10">
+							<input type="text" name="sphinx_weights[price]" value="1" class="weights-field form-control" />
+						</div>
+					</div>
+            					
+              </div>
+            </div>
+
+            <div class="tab-pane" id="autocomplete">
+				
+				<div class="form-group">
+		          	<label class="col-sm-2 control-label">Autocomplete status: </label>
+		            <div class="col-sm-10">
+		            	<select class="form-control" name="sphinx_search_autocomple">
+		                  		                  <option value="1"  >Включено</option>
+		                  <option value="0" selected="selected" >Отключено</option>
+		                  		                </select>
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Enter the CSS selector of the search field you want to appear the autocomplete. By default the selector is: #search input</label>
+		            <div class="col-sm-10">
+		            	<input class="form-control" type="text" name="sphinx_autocomple_selector" value="input[name='search']" />
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Maximum number of products to display</label>
+		            <div class="col-sm-10">
+		            	<input class="form-control" type="text" name="sphinx_autocomple_limit" value="3" />
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Show categories inside autocomplete dropdown list</label>
+		            <div class="col-sm-10">
+		            	<select class="form-control" name="sphinx_search_autocomplete_categories">
+		                  		                  <option value="1" selected="selected" >Yes</option>
+		                  <option value="0"  >No</option>
+		                  		                </select>
+		        	</div>
+		        </div>
+				
+				<div class="form-group">
+		          	<label class="col-sm-2 control-label">Maximum number of categories to display</label>
+		            <div class="col-sm-10">
+			            <input class="form-control" type="text" name="sphinx_autocomplete_cat_limit" value="2" />
+		        	</div>
+		        </div>
+           
+            </div><!-- end of autocomplete -->
+            
+            
+            <div class="tab-pane" id="productOptions">
+				
+				<div class="form-group">
+		          	<label class="col-sm-2 control-label">Show products which status is Disabled</label>
+		            <div class="col-sm-10">
+			            <select class="form-control" name="sphinx_search_product_status">
+		                  		                  <option value="1"  >Yes</option>
+		                  <option value="0" selected="selected" >No</option>
+		                  		                </select>
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Show products which quantity min values is:</label>
+		            <div class="col-sm-10">
+			            <input class="form-control" type="text" name="sphinx_search_products_quantity" value="0" />
+		        	</div>
+		        </div>
+		        
+            </div><!-- end of productOptions -->
+            
+            <div class="tab-pane" id="categoriesOptions">
+				<div class="form-group">
+		          	<label class="col-sm-2 control-label">Enable sphinx for categories</label>
+		            <div class="col-sm-10">
+			            <select class="form-control" name="sphinx_category_status">
+		                  		                  <option value="1"  >Включено</option>
+		                  <option value="0" selected="selected" >Отключено</option>
+		                  		                </select>
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Show products which status is Disabled</label>
+		            <div class="col-sm-10">
+			            <select class="form-control" name="sphinx_category_product_status">
+		                  		                  <option value="1" selected="selected" >Yes</option>
+		                  <option value="0"  >No</option>
+		                  		                </select>
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Show products which quantity min values is:</label>
+		            <div class="col-sm-10">
+			            <input class="form-control" type="text" name="sphinx_category_product_quantity" value="0" />
+		        	</div>
+		        </div>
+				      
+            </div><!-- end of categoriesOptions -->
+            
+            <div class="tab-pane" id="suggestions">
+           		
+           		<div class="form-group">
+		          	<label class="col-sm-2 control-label">This will generate a table with all keywords from the product's name column inside product_description table, build trigrams and freqs.</label>
+		            <div class="col-sm-10">
+			            <a onclick="genSuggestions($(this), 0)" class="btn btn-primary"><span>Generate suggestions</span></a>
+						<img id="loader" src="view/image/loading.gif" style="display: none" />
+						<div id="progressBar" class="hide">
+							<span class="msg">Please wait...</span>
+							<div></div>
+						</div>
+		        	</div>
+		        </div>
+		        
+				<div class="alert alert-info">In order to see errors from Sphinx module, please set 'Display Errors' inside System->Settings->Server to 'No'. If you don't want to set it, then all errors will be logged inside error.log file.</div>
+				
+            </div><!-- end of suggestions -->
+            
+            <div class="tab-pane" id="config">
+           		
+           		<div class="form-group">
+		          	<label class="col-sm-2 control-label">Choose index type:</label>
+		            <div class="col-sm-10">
+			            <select class="form-control" id="sphinx_config_index_type" name="sphinx_config_index_type">
+		                  		                  <option value="1"  >Real Time index (RT)</option>
+		                  <option value="0" selected="selected" >Regular index</option>
+		                  		                </select>
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Enter the path where the indexes will be stored: <br /> ex. /var/www/sphinx/data</label>
+		            <div class="col-sm-10">
+			            <input class="form-control" type="text" name="sphinx_config_path_to_indexes" value="/home/kuhnisol/.system/sphinx/" />
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Enter the path where the log will be stored: <br /> ex. /var/www/sphinx/log</label>
+		            <div class="col-sm-10">
+			        	<input class="form-control" type="text" name="sphinx_config_path_to_log" value="/home/kuhnisol/.system/sphinx/" />
+		        	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		          	<label class="col-sm-2 control-label">Generate sphinx config file</label>
+		            <div class="col-sm-10">
+			        	<a id="genConfig" href="index.php?route=extension/module/sphinxsearch/generateSphinxConfig&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA" target="_blank" class="btn btn-primary"><span>Generate</span></a>
+						<img id="loaderConfig" src="view/image/loading.gif" style="display: none" />
+		        	</div>
+		        </div>
+		        
+	          	<div class="alert alert-info">Note: If you have used Sphinx with 'RT index' type, before start using the 'Regular index' type, make sure you have done the following steps: </br > 1. Generate a new sphinx config file. <br /> 2. Delete all previous indexes from the 'data path' you have specified in the 'Config file tab'. <br /> 3. Run indexer to generate the regular indexes!</div>
+		        
+            </div><!-- end of config -->
+            
+            <div class="tab-pane" id="rtIndex">
+				
+				 <div class="form-group">
+				 	<div class="col-sm-12">
+				 		<a onclick="buildProductsRtIndex($(this), 0)" class="btn btn-primary"><span>Build Products RT index</span></a>
+						<div id="progressBarProducts" class="hide">
+							<span class="msgConfig">Please wait...</span>
+							<div></div>
+						</div>
+						<img id="loaderProducts" src="view/image/loading.gif" style="display: none" />
+				 	</div>
+		        </div>
+		        
+		        <div class="form-group">
+		        	<div class="col-sm-12">
+			          	<a onclick="buildCategoriesRtIndex($(this), 0)" class="btn btn-primary"><span>Build Categories RT index</span></a>
+						<div id="progressBarCategories" class="hide">
+							<span class="msgConfig">Please wait...</span>
+							<div></div>
+						</div>
+						<img id="loaderCategories" src="view/image/loading.gif" style="display: none" />
+					</div>
+		        </div>
+		        
+	        	<div class="alert alert-info">Note: If you have used Sphinx with 'Regular index' type, before start using the 'RT index' type, make sure you have done the following steps:  </br > 1. Generate a new sphinx config file. <br /> 2. Delete all previous indexes from the 'data path' you have specified in the 'Config file tab'! <br /> <br /> In order to see errors from Sphinx module, please set 'Display Errors' inside System->Settings->Server to 'No'. If you don't want to set it, then all errors will be logged inside error.log file.</div>
+           
+            </div><!-- end of rtIndex -->
+            
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+</div>
+<footer id="footer"><a href="http://opencart.pro/">OPENCART.PRO</a> &copy; 2009-2023 Все права защищены. <br /><a href="http://forum.opencart.pro">Форум Поддержки</a><br />Версия 2.3.0.2.5</footer></div>
+</body></html>
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+	$('.alert-info').hide();
+	$('#suggestions .alert-info, #rtIndex .alert-info, #config .alert-info').show();
+	$('button').click(function(){
+		$('.'+$(this).attr('id')+'-info').toggle();
+		return false;
+	});
+	
+	var indexType = $('#sphinx_config_index_type').find(":selected").val();
+	
+	if(indexType == 1) {
+		$('a.rtIndexTab').removeClass('hiddenTab');
+		$('#config .attention').html("Note: If you have used Sphinx with 'Regular index' type, before start using the 'RT index' type, make sure you have done the following steps:  </br > 1. Generate a new sphinx config file. <br /> 2. Delete all previous indexes from the 'data path' you have specified in the 'Config file tab'! <br /> <br /> In order to see errors from Sphinx module, please set 'Display Errors' inside System->Settings->Server to 'No'. If you don't want to set it, then all errors will be logged inside error.log file.");
+	}
+	
+	$('#sphinx_config_index_type').on('change', function (e) {
+		var optionSelected = $("option:selected", this);
+	   	var valueSelected = this.value;
+	   	
+	   	if(valueSelected == 1) {
+	   		$('a.rtIndexTab').removeClass('hiddenTab');
+	   		$('#config .attention').html("Note: If you have used Sphinx with 'Regular index' type, before start using the 'RT index' type, make sure you have done the following steps:  </br > 1. Generate a new sphinx config file. <br /> 2. Delete all previous indexes from the 'data path' you have specified in the 'Config file tab'! <br /> <br /> In order to see errors from Sphinx module, please set 'Display Errors' inside System->Settings->Server to 'No'. If you don't want to set it, then all errors will be logged inside error.log file.");
+	   	} else {
+	   		$('a.rtIndexTab').addClass('hiddenTab');
+	   		$('#config .attention').html("Note: If you have used Sphinx with 'RT index' type, before start using the 'Regular index' type, make sure you have done the following steps: </br > 1. Generate a new sphinx config file. <br /> 2. Delete all previous indexes from the 'data path' you have specified in the 'Config file tab'. <br /> 3. Run indexer to generate the regular indexes!");
+	   	}
+			   	
+	});
+	
+	$('#genConfig').click(function(){
+		$('#loaderConfig').show();
+	
+		var confirmVal = confirm('Do you want to save changes first?');
+	
+		if(confirmVal) {
+			//Save data before generating file
+			saveAndContinue(true);
+		}
+	
+		location.href = $('#genConfig').attr('href');
+		$('#loaderConfig').hide();
+		
+		return false;
+	});
+	
+});
+
+function saveAndContinue(isConfigFile) {
+	
+	$.ajax({
+		type: 'POST',
+		async: false,
+		url: 'index.php?route=extension/module/sphinxsearch/save&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA',
+		data: $('#form-product').serialize(),
+		success: function(data) {
+			if(isConfigFile) {
+				$('#loaderConfig').hide();
+				location.href = $('#genConfig').attr('href');
+			}
+		}
+	});
+}
+
+function genSuggestions(el, offset) {
+	
+	var onClickAttr = el.attr('onclick');
+	el.attr('onclick','').unbind('click');
+	el.addClass('disabled');
+	
+	$('#progressBar').removeClass('hide').show();
+	$('#loader').show();
+
+	//Save before continue
+	//saveAndContinue(false);
+
+	$.ajax({
+		type:'POST',
+		url: 'index.php?route=extension/module/sphinxsearch/generateSuggestions&offset='+offset+'&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA',
+		dataType: 'json',
+		success: function(data) {
+			if(data['error'] != '') {
+				$('#progressBar').after('<div class="idx-generating-error alert alert-warning">' + data['error'] + '</div>');
+				$('#progressBar').hide();
+				$('#loader').hide();
+				return;
+			} 
+			
+			$('#progressBar .msg').empty();
+			
+			var percent = Math.floor((data['offset']/data['total']) * 100);
+		
+			$('#progressBar').find('div').animate({ width: percent + '%' }, 200).html(percent + "%&nbsp;");
+			
+			if(percent >= 100) {
+				$('#progressBar').removeClass('hide').show();
+				$('#progressBar').find('div').text('Done');
+				$('#loader').hide();
+				el.attr('onclick',onClickAttr).bind('click');
+				el.removeClass('disabled');
+			} else {
+				genSuggestions(el, data['offset']);
+			}
+
+		}
+	});
+}
+
+function buildProductsRtIndex(el, offset) {
+	
+	var onClickAttr = el.attr('onclick');
+	el.attr('onclick','').unbind('click');
+	el.addClass('disabled');
+	
+	$('#progressBarProducts').removeClass('hide').show();
+	$('#loaderProducts').show();
+	$('.prError').remove();
+
+	//Save before continue
+	//saveAndContinue(false);
+
+	$.ajax({
+		type:'POST',
+		url: 'index.php?route=extension/module/sphinxsearch/buildProductsRtIndex&offset='+offset+'&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA',
+		dataType: 'json',
+		success: function(data) {
+			
+			if(data['error']) {
+				$('#progressBarProducts').addClass('hide');
+				$('#progressBarProducts').after("<span class='idx-generating-error alert alert-warning'>"+data['error']+"</span>");
+				$('#loaderProducts').hide();
+				el.attr('onclick',onClickAttr).bind('click');
+				el.removeClass('disabled');
+				return false;
+			}
+			
+			var percent = Math.floor((data['offset']/data['total']) * 100);
+		
+			$('#progressBarProducts').find('div').animate({ width: percent + '%' }, 200).html(percent + "%&nbsp;");
+			
+			if(percent >= 100) {
+				$('#progressBarProducts').removeClass('hide').show();
+				$('#progressBarProducts').find('div').text('Done');
+				$('#loaderProducts').hide();
+				el.attr('onclick',onClickAttr).bind('click');
+				el.removeClass('disabled');
+			} else {
+				buildProductsRtIndex(el, data['offset']);
+			}
+		}
+	});
+
+}
+
+function buildCategoriesRtIndex(el, offset) {
+	
+	var onClickAttr = el.attr('onclick');
+	el.attr('onclick','').unbind('click');
+	el.addClass('disabled');
+	
+	$('#progressBarCategories').removeClass('hide').show();
+	$('#loaderCategories').show();
+	$('.catError').remove();
+
+	//Save before continue
+	//saveAndContinue(false);
+
+	$.ajax({
+		type:'POST',
+		url: 'index.php?route=extension/module/sphinxsearch/buildCategoriesRtIndex&offset='+offset+'&token=WFKb3SxacTXrKgY6ron8gpTNfYvA05zA',
+		dataType: 'json',
+		success: function(data) {
+			
+			if(data['error']) {
+				$('#progressBarCategories').addClass('hide').show();
+				$('#progressBarCategories').after("<span class='idx-generating-error alert alert-warning'>"+data['error']+"</span>");
+				$('#loaderCategories').hide();
+				el.attr('onclick',onClickAttr).bind('click');
+				el.removeClass('disabled');
+				return false;
+			}
+			
+			var percent = Math.floor((data['offset']/data['total']) * 100);
+		
+			$('#progressBarCategories').find('div').animate({ width: percent + '%' }, 200).html(percent + "%&nbsp;");
+			
+			if(percent >= 100) {
+				$('#progressBarCategories').removeClass('hide').show();
+				$('#progressBarCategories').find('div').text('Done');
+				$('#loaderCategories').hide();
+				el.attr('onclick',onClickAttr).bind('click');
+				el.removeClass('disabled');
+			} else {
+				buildCategoriesRtIndex(el, data['offset']);
+			}
+		}
+	});
+}
+</script>
